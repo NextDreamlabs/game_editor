@@ -141,6 +141,8 @@ class TweakpaneManager {
       console.log(color)
 
       object.mesh.material.color = new Color(color)
+      object.$Object.material.color = `rgb(${parseInt(r)},${parseInt(g)},${parseInt(b)})`
+      console.log(object, ' object.mesh')
     })
     if (['MeshPhysicalMaterial', 'MeshStandardMaterial', 'MeshPhongMaterial'].includes(object?.mesh.material?.type)) {
 

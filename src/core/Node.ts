@@ -256,21 +256,7 @@ export class Node extends Signal {
 
     console.log(`Node ${this.name} unloaded`);
   }
-  /**
-   * 将此节点序列化为 JSON
-   * @returns JSON 对象
-   */
-  toJSON() {
-    const obj: any = {};
-    for (const key in this) {
-      if (this.hasOwnProperty(key) && typeof (this as any)[key] !== 'function' && typeof (this as any)[key] !== 'object') {
-        obj[key] = (this as any)[key];
-      }
-    }
-    console.log(obj, 'toJSON result');
 
-    return { ...obj, ...super.toJSON() };
-  }
 
   /**
    * 从 JSON 数据反序列化并重建节点

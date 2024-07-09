@@ -1,9 +1,9 @@
 
 import { Scene as ThreeScene, PerspectiveCamera, WebGLRenderer, GridHelper } from 'three';
 import { EventManager } from './Event';
-import { Scene } from './Scene';
-
-import { Node } from './Node';
+import { Scene, Scene as _Scene } from './Scene';
+import { MeshNode, ModelNode } from './index';
+// import { Node } from './Node';
 import CameraControls from 'ly-camera-controls';
 import * as THREE from 'three';
 import TweakpaneManager from './manager/TweakpaneManager';
@@ -70,6 +70,45 @@ export class Engine {
     this.renderer.setSize(container.clientWidth, container.clientHeight);
     this.container = container
     this.selectionSystem.container = this.container
+  }
+  public loadScene(scene: any) {
+    // for (const [key, value] of scene.children) {
+    //   console.log(key, value, 'key value');
+    // }
+    // const _scene = new _Scene('root2')
+
+    // scene.children.forEach((node: any) => {
+    //   console.log(node, 'node');
+
+    //   switch (node.type) {
+    //     case 'MeshNode':
+    //       const meshNode = new MeshNode(node.name);
+    //       meshNode.position.set(node.position.x, node.position.y, node.position.z);
+    //       this.add_scene(meshNode);
+    //       break;
+    //     case 'ModelNode':
+    //       const modelNode = new ModelNode(node.name);
+    //       modelNode.loadModel(node?.modelPath);
+    //       this.add_scene(modelNode);
+    //       break;
+    //     // case 'LightNode':
+    //     //   const lightNode = new LightNode(node.name);
+    //     //   lightNode.position.set(node.position.x, node.position.y, node.position.z);
+    //     //   this.add_scene(lightNode);
+    //     //   break;
+    //     default:
+    //       break;
+    //   }
+    // })
+    // this.add_scene(_scene);
+  }
+
+  saveScene() {
+    console.log(this.threeScene.children, 'this.threeScene.children')
+    const data = {
+      objects: this.threeScene.children.map(obj => obj.$type == 'Scene' && obj.toJSON())
+    }
+    return data
   }
 
   add_scene(scene: Scene) {

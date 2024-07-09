@@ -9,7 +9,7 @@ class BaseLightNode extends Node {
     super(name);
     this.light = light;
     this.helper = helper;
-
+    this.$type = 'LightNode'
     this.add(this.light);
     this.add(this.helper);
 
