@@ -1,0 +1,29 @@
+{
+  "$schema": "./schemas/desktop-schema.json",
+  "identifier": "default-plugins",
+  "description": "enables the default permissions",
+  "windows": ["main"],
+  "permissions": [
+    "path:default",
+    "event:default",
+    "window:default",
+    "webview:default",
+    "app:default",
+    "resources:default",
+    "menu:default",
+    "tray:default",
+    {
+      "identifier": "fs:allow-exists",
+      "allow": [{ "path": "$APPDATA/*" }]
+    },
+    {
+      "identifier": "fs:allow-write",
+      "allow": [{ "path": "$APPDATA/*" }]
+    },
+    {
+      "identifier": "fs:allow-app-write",
+      "allow": [{ "path": "$APPDATA/*" }]
+    }
+    
+  ]
+}

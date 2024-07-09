@@ -1,0 +1,49 @@
+{
+  "name": "piexl-editor",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@tauri-apps/api": ">=2.0.0-beta.0",
+    "@tauri-apps/plugin-fs": "2.0.0-beta.6",
+    "@tauri-apps/plugin-shell": ">=2.0.0-beta.0",
+    "@tweakpane/plugin-essentials": "^0.2.1",
+    "@types/node": "^20.14.8",
+    "autoprefixer": "^10.4.19",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "electron": "^31.1.0",
+    "lucide-vue-next": "^0.396.0",
+    "ly-camera-controls": "0.0.0-semantic-release",
+    "mitt": "^3.0.1",
+    "naive-ui": "^2.38.2",
+    "pinia": "^2.1.7",
+    "postcss": "^8.4.38",
+    "radix-vue": "^1.8.5",
+    "shadcn-vue": "0.10.5",
+    "signals": "^1.0.0",
+    "tailwind-merge": "^2.3.0",
+    "tailwindcss": "^3.4.4",
+    "tailwindcss-animate": "^1.0.7",
+    "three": "^0.165.0",
+    "tweakpane": "^4.0.0",
+    "tweakpane-plugin-file-import": "0.2.0",
+    "tweakpane-plugin-media": "^1.0.3",
+    "unplugin-auto-import": "^0.17.6",
+    "unplugin-vue-components": "^0.27.2",
+    "vue": "^3.3.4"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": ">=2.0.0-beta.0",
+    "@vitejs/plugin-vue": "^5.0.5",
+    "typescript": "^5.2.2",
+    "vite": "^5.3.1",
+    "vue-tsc": "^2.0.22"
+  }
+}
