@@ -2,7 +2,7 @@
 import { Scene as ThreeScene, PerspectiveCamera, WebGLRenderer, GridHelper } from 'three';
 import { EventManager } from './Event';
 import { Scene, Scene as _Scene } from './Scene';
-import { MeshNode, ModelNode } from './index';
+import { MeshNode, ModelNode, Node } from './index';
 // import { Node } from './Node';
 import CameraControls from 'ly-camera-controls';
 import * as THREE from 'three';
@@ -10,7 +10,7 @@ import TweakpaneManager from './manager/TweakpaneManager';
 import { CustomTransformControls } from './helper/TransformControls';
 import { SelectionSystem } from './system/SelectionSystem';
 import { CustomTransformControlsSingleton } from './helper/CustomTransformControlsSingleton';
-
+import { EngineInfo } from '../core/store/sceneGraphMap'
 export class Engine {
   private static instance: Engine;
   private scenes: Scene[] = [];
@@ -24,8 +24,9 @@ export class Engine {
   public cameraControls: CameraControls;
   public customTransformControls: CustomTransformControls;
   private selectionSystem: SelectionSystem;
-
+  private renderStatus: 'start' | 'preview' = 'start';
   constructor(container: HTMLElement) {
+
     this.renderer = new WebGLRenderer();
     this.renderer.setSize(container.clientWidth, container.clientHeight); // 设置渲染器大小
     this.camera = new PerspectiveCamera(75, container.clientWidth / container.clientHeight, 1, 10000);
@@ -39,7 +40,7 @@ export class Engine {
 
     // Add grid helper
     this.gridHelper = new GridHelper(1000, 1000);
-    // this.threeScene.add(this.gridHelper);
+    this.threeScene.add(this.gridHelper);
 
     CameraControls.install({ THREE: THREE });
     this.cameraControls = new CameraControls(this.camera, this.renderer.domElement);
@@ -55,6 +56,7 @@ export class Engine {
     this.selectionSystem = new SelectionSystem(this.camera, this.threeScene);
     this.selectionSystem.addEventListener('select', (event) => {
       this.customTransformControls.attach(event.object.parent);
+      // this.cameraControls.setOrbitPoint(event.object.parent.position.x, event.object.parent.position.y, event.object.parent.position.z)
       this.tweakpaneManager.addInput(event.object.parent); // Add this line
     });
     this.cameraControls.addEventListener('update', () => {
@@ -112,9 +114,13 @@ export class Engine {
   }
 
   add_scene(scene: Scene) {
+
     this.scenes.push(scene);
     this.threeScene.add(scene); // Add the root node's Object3D to the three.js scene
     // this.customTransformControls.attach(scene); // Attach custom transform controls to the root node
+    EngineInfo.value.Scenes.push(scene)
+
+    // EngineInfo.value.Scenes = this.threeScene
   }
 
   add_light(light: any) {
@@ -126,8 +132,14 @@ export class Engine {
   }
 
   start() {
+    this.renderStatus = 'start';
     this.running = true;
     this.loadScripts();
+    this.loop();
+  }
+  preview() {
+    this.renderStatus = 'preview'
+    this.running = true;
     this.loop();
   }
 
@@ -156,7 +168,9 @@ export class Engine {
       }
     }
   }
-
+  public checkSceneStatus(type: 'start' | 'preview') {
+    this.renderStatus = type
+  }
   private loadSceneScripts(scene: Scene) {
     const loadNodeScripts = (node: Node) => {
       console.log(node, 'node');
@@ -173,9 +187,10 @@ export class Engine {
 
   private loop() {
     if (!this.running) return;
+
     const delta = 16; // 假设每帧16ms
     for (const scene of this.scenes) {
-      scene.update(delta);
+      scene.update(delta, this.renderStatus === 'start');
     }
 
     this.renderer.render(this.threeScene, this.camera);

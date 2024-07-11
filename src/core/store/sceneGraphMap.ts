@@ -10,7 +10,11 @@ export const EditorInfo = ref({
   selectedObjectParentId: null,
   selectedObjectParentType: null,
 
-  isSave: false
-  
+  isSave: false,
+
+
 })
 
+export const EngineInfo = ref({
+  Scenes: []
+})

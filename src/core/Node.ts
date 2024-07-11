@@ -150,13 +150,13 @@ export class Node extends Signal {
    * 更新此节点及其子节点
    * @param delta - 更新的时间增量
    */
-  update(delta: number) {
-    if (this.script && typeof this.script.update === 'function') {
+  update(delta: number, isStart: boolean) {
+    if (this.script && typeof this.script.update === 'function' && isStart) {
       this.script.update(this);
     }
     for (const child of this.node_children) {
       // applyObservableProperties(this)
-      child.update(delta);
+      child.update(delta, isStart);
     }
   }
 
