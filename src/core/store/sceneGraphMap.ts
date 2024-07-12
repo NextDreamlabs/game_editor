@@ -15,6 +15,20 @@ export const EditorInfo = ref({
 
 })
 
+
+type tranformModeType = 'translate' | 'rotate' | 'scale'
+
 export const EngineInfo = ref({
-  Scenes: []
+  Scenes: [],
+  tranformMode: 'translate' as tranformModeType
 })
+
+export const EngineFunctions = {
+  setTranformMode: (mode: tranformModeType) => {
+    EngineInfo.value.tranformMode = mode
+
+  },
+  resetTranformMode: () => {
+    EngineInfo.value.tranformMode = 'translate'
+  }
+}

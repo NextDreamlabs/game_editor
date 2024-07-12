@@ -23,6 +23,9 @@ export class CustomTransformControls {
     SelectedObjectSingleton.getInstance().setSelectedObject(object);
   }
 
+  setMode(mode: 'translate' | 'rotate' | 'scale') {
+    this.transformControls.setMode(mode);
+  }
   detach() {
     this.attachedObject = null;
     this.transformControls.detach();

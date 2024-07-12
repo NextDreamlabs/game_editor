@@ -11,6 +11,7 @@ import { CustomTransformControls } from './helper/TransformControls';
 import { SelectionSystem } from './system/SelectionSystem';
 import { CustomTransformControlsSingleton } from './helper/CustomTransformControlsSingleton';
 import { EngineInfo } from '../core/store/sceneGraphMap'
+import { watch } from 'vue';
 export class Engine {
   private static instance: Engine;
   private scenes: Scene[] = [];
@@ -56,6 +57,7 @@ export class Engine {
     this.selectionSystem = new SelectionSystem(this.camera, this.threeScene);
     this.selectionSystem.addEventListener('select', (event) => {
       this.customTransformControls.attach(event.object.parent);
+
       // this.cameraControls.setOrbitPoint(event.object.parent.position.x, event.object.parent.position.y, event.object.parent.position.z)
       this.tweakpaneManager.addInput(event.object.parent); // Add this line
     });
@@ -63,6 +65,10 @@ export class Engine {
       this.selectionSystem.updateCamera(this.camera)
     })
     this.selectionSystem.container = this.container
+
+    watch(EngineInfo.value, () => {
+      this.customTransformControls.setMode(EngineInfo.value.tranformMode)
+    })
   }
 
   private onWindowResize(container: HTMLElement) {

@@ -32,7 +32,7 @@ onMounted(() => {
     eventManager.value = new EventManager();
     __engine__.registerResizeEvent(eventManager.value);
     // __engine__.loadScene(secneJson)
-    const _scene = new Scene('root2')
+    // const _scene = new Scene('root2')
 
     if (testLoader) {
       secneJson.children.forEach((node: any) => {
@@ -64,7 +64,7 @@ onMounted(() => {
     const __node__ = new MeshNode('mesh')
     const __node__1 = new MeshNode('mesh1')
     const model = new ModelNode('model')
-    model.loadModel("/src/assets/主变压器.FBX")
+    // model.loadModel("/src/assets/主变压器.FBX")
     __node__1.position.y = 10
     __node__.position.y = 1
     __node__.script = 1
@@ -111,8 +111,7 @@ onMounted(() => {
 
       // });
     }, 3000)
-    __engine__.add_scene(_scene)
-    // __engine__.preview()
+    __engine__.preview()
     // __engine__.start()
   } else {
     console.error('Editor_Panel element not found');
@@ -183,6 +182,10 @@ console.log(globalStore.value, 'globalStore')
   transition: all 100ms ease 0s;
   cursor: pointer;
 
+}
+
+.editor-active {
+  background: rgba(226, 220, 220, 0.857);
 }
 
 .editor-ui-text {
