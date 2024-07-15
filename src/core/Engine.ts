@@ -12,11 +12,18 @@ import { SelectionSystem } from './system/SelectionSystem';
 import { CustomTransformControlsSingleton } from './helper/CustomTransformControlsSingleton';
 import { EngineInfo } from '../core/store/sceneGraphMap'
 import { watch } from 'vue';
+import { PostProcessingSetup } from './pass/MoebiusPass';
+import { EffectComposerWrapper } from './pass/effectComposerWrapper';
+
+import { PencilLinesPass } from './pass/PencilLinesPass/index'
+import { MoebiusPass } from './pass/MoebiusPass/index'
+import { CustomRenderer } from './renderer/passRenderer'
 export class Engine {
   private static instance: Engine;
   private scenes: Scene[] = [];
   private running: boolean = false;
   public renderer: WebGLRenderer;
+  private pass: any;
   public camera: PerspectiveCamera;
   private threeScene: ThreeScene;
   private container: HTMLElement;
@@ -26,22 +33,31 @@ export class Engine {
   public customTransformControls: CustomTransformControls;
   private selectionSystem: SelectionSystem;
   private renderStatus: 'start' | 'preview' = 'start';
+  private postProcessing: PostProcessingSetup;
+
   constructor(container: HTMLElement) {
 
     this.renderer = new WebGLRenderer();
     this.renderer.setSize(container.clientWidth, container.clientHeight); // 设置渲染器大小
-    this.camera = new PerspectiveCamera(75, container.clientWidth / container.clientHeight, 1, 10000);
+    this.renderer.shadowMap.enabled = true
+    this.renderer.physicallyCorrectLights = true
+    this.renderer.outputEncoding = THREE.sRGBEncoding
+    this.renderer.toneMapping = THREE.CineonToneMapping
+    this.renderer.toneMappingExposure = 1.75
+    this.renderer.shadowMap.enabled = true
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
+    this.camera = new PerspectiveCamera(65, container.clientWidth / container.clientHeight, 0.01, 1000);
     this.threeScene = new ThreeScene();
     container.appendChild(this.renderer.domElement);
     this.camera.position.z = 5;
     this.camera.position.y = 10;
-
+    this.threeScene.background = new THREE.Color('#1B43BA');
     window.addEventListener('resize', () => this.onWindowResize(container)); // 监听窗口大小变化
     this.container = container;
 
     // Add grid helper
     this.gridHelper = new GridHelper(1000, 1000);
-    this.threeScene.add(this.gridHelper);
+    // this.threeScene.add(this.gridHelper);
 
     CameraControls.install({ THREE: THREE });
     this.cameraControls = new CameraControls(this.camera, this.renderer.domElement);
@@ -49,7 +65,6 @@ export class Engine {
     // this.cameraControls.mouseButtons.right = CameraControls.ACTION.ROTATE;
     this.camera.position.set(0, 10, 10);
     this.tweakpaneManager = new TweakpaneManager();
-
 
     this.customTransformControls = CustomTransformControlsSingleton.getInstance(this.camera, this.renderer, this.cameraControls);
     this.threeScene.add(this.customTransformControls.getControls());
@@ -69,13 +84,55 @@ export class Engine {
     watch(EngineInfo.value, () => {
       this.customTransformControls.setMode(EngineInfo.value.tranformMode)
     })
+    this.initMeshWithReflectiveFloor()
+    // Initialize PostProcessingSetup
+
+    this.postProcessing = new PostProcessingSetup(this.renderer, this.threeScene, this.camera);
+
+    const depthTexture = new THREE.DepthTexture(
+      window.innerWidth,
+      window.innerHeight
+    )
+
+    const depthRenderTarget = new THREE.WebGLRenderTarget(
+      window.innerWidth,
+      window.innerHeight,
+      {
+        depthTexture,
+        depthBuffer: true,
+      }
+    )
+
+    const normalRenderTarget = new THREE.WebGLRenderTarget()
+    this.pass = new EffectComposerWrapper(this.renderer, this.threeScene, this.camera, MoebiusPass, {
+      depthRenderTarget,
+      normalRenderTarget
+    });
+    this.customRenderer = new CustomRenderer(this.renderer, this.threeScene, this.camera, container.clientWidth, container.clientHeight, {
+      depthRenderTarget,
+      normalRenderTarget
+    });
   }
 
+  initMeshWithReflectiveFloor() {
+    const floorGeometry = new THREE.PlaneGeometry(10, 10);
+    const floorMaterial = new THREE.MeshPhongMaterial({
+      color: 0xFFFFFF, // White color
+      specular: 0x050505,
+      shininess: 100,
+      reflectivity: 0.5,
+    });
+    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.rotation.x = -Math.PI / 2; // Rotate to lie flat
+    floor.receiveShadow = true; // Enable receiving shadows
+    this.threeScene.add(floor);
+  }
   private onWindowResize(container: HTMLElement) {
 
     this.camera.aspect = container.clientWidth / container.clientHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(container.clientWidth, container.clientHeight);
+
     this.container = container
     this.selectionSystem.container = this.container
   }
@@ -118,6 +175,7 @@ export class Engine {
     }
     return data
   }
+
 
   add_scene(scene: Scene) {
 
@@ -199,8 +257,10 @@ export class Engine {
       scene.update(delta, this.renderStatus === 'start');
     }
 
-    this.renderer.render(this.threeScene, this.camera);
-
+    this.customRenderer.render();
+    // 使用 PostProcessingSetup 的 render 方法替代直接渲染
+    this.pass.render();
+    // this.renderer.render(this.threeScene, this.camera);
     this.cameraControls.update(delta);
     requestAnimationFrame(() => this.loop());
   }

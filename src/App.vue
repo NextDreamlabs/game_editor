@@ -9,7 +9,7 @@ import { ref } from 'vue';
 import { onMounted, Ref, watch, onBeforeUnmount } from 'vue';
 import { Engine, Node, Scene, MeshNode, ModelNode } from './core';
 import { EventManager } from './core/Event';
-import { AmbientLight, PointLight, PointLightHelper, Object3D } from 'three';
+import { AmbientLight, Color, DirectionalLight, SphereGeometry, PointLight, PointLightHelper, Object3D, TorusKnotGeometry } from 'three';
 import { DirectionalLightNode, PointLightNode, SpotLightNode } from './core/node/lights';
 import { writeFile, BaseDirectory } from '@tauri-apps/plugin-fs';
 import * as fs from "@tauri-apps/api/path";
@@ -61,12 +61,16 @@ onMounted(() => {
 
     // console.log(secneJson, 'secneJson')
     __scene__ = new Scene('root')
-    const __node__ = new MeshNode('mesh')
-    const __node__1 = new MeshNode('mesh1')
+    const tg = new TorusKnotGeometry(1, 0.3, 200, 32)
+    const sp = new SphereGeometry(1, 32, 32)
+    const __node__ = new MeshNode('mesh', tg)
+    const __node__1 = new MeshNode('mesh1', sp)
     const model = new ModelNode('model')
     // model.loadModel("/src/assets/主变压器.FBX")
-    __node__1.position.y = 10
-    __node__.position.y = 1
+    __node__1.position.x = 3
+    __node__1.position.y = 1
+    __node__1.rotation.y = Math.PI / 4
+    __node__.position.y = 3
     __node__.script = 1
     __node__.toJSON()
     console.log(__node__, 'Node')
@@ -76,6 +80,15 @@ onMounted(() => {
     __scene__.add_node(__node__1)
     __scene__.add_node(model)
     __engine__.add_scene(__scene__)
+    const Al = new AmbientLight(new Color('#ffffff'));
+    Al.intensity = 0.2
+    __engine__.add_light(Al);
+    const directionalLight = new DirectionalLight(new Color('#ffffff'));
+    directionalLight.position.set(10, 10, 10);
+    directionalLight.intensity = 4.5
+    directionalLight.target = __node__; // Targeting __node__
+    directionalLight.castShadow = true; // Enable casting shadows
+    __engine__.add_light(directionalLight);
     console.log(globalStore.value.values().next().value.children, 'store')
     __node__.script = {
       update: (_this: any) => {
@@ -96,7 +109,7 @@ onMounted(() => {
     dLight.position.set(0, 10, 0);
     // pointLight.light.position.set(0, 10, 0);
     console.log(pointLight.light, 'pointLight.light')
-    __scene__.add_node(pointLight);
+    // __scene__.add_node(pointLight);
     // __engine__.add_light(dLight);
     // __engine__.start()
     store.value = globalStore.value.values().next().value.children

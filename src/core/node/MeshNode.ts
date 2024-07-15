@@ -1,5 +1,5 @@
 import { Node } from '../Node';
-import { Mesh, BufferGeometry, MeshBasicMaterial, SphereGeometry, BoxGeometry, Material, Object3D, Color } from 'three';
+import { Mesh, BufferGeometry, TorusKnotGeometry, MeshStandardMaterial, MeshBasicMaterial, SphereGeometry, BoxGeometry, Material, Object3D, Color } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
@@ -11,13 +11,15 @@ export class MeshNode extends Node {
   public geometry: BufferGeometry;
   public mesh: Mesh;
 
-  constructor(name: string, geometry?: BufferGeometry, material?: Material, IsCopy: Boolean = false) {
+  constructor(name: string, geometry?: string, material?: Material, IsCopy: Boolean = false) {
     super(name, 0, 0); // 默认位置为 (0, 0)
     this.$type = 'MeshNode'
     if (!IsCopy) {
-      this.material = material || new MeshBasicMaterial({ color: new Color('#ffffff') });
+      this.material = material || new MeshStandardMaterial({ color: new Color(`#${Math.floor(Math.random() * 16777215).toString(16)}`) });
       this.geometry = geometry || new BoxGeometry(1, 1, 1);
       this.mesh = new Mesh(this.geometry, this.material);
+      this.mesh.castShadow = true
+      this.castShadow = true
       this.add(this.mesh);
     }
     // Apply proxy to this instance
