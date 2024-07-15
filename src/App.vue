@@ -66,11 +66,15 @@ onMounted(() => {
     const __node__ = new MeshNode('mesh', tg)
     const __node__1 = new MeshNode('mesh1', sp)
     const model = new ModelNode('model')
-    // model.loadModel("/src/assets/主变压器.FBX")
+    model.loadModel("/src/assets/guaishou.glb")
     __node__1.position.x = 3
     __node__1.position.y = 1
+    __node__1.position.z = 1
+    model.position.y = 1
+
     __node__1.rotation.y = Math.PI / 4
     __node__.position.y = 3
+    __node__.position.z = 3
     __node__.script = 1
     __node__.toJSON()
     console.log(__node__, 'Node')
@@ -81,11 +85,11 @@ onMounted(() => {
     __scene__.add_node(model)
     __engine__.add_scene(__scene__)
     const Al = new AmbientLight(new Color('#ffffff'));
-    Al.intensity = 0.2
+    Al.intensity = 1.2
     __engine__.add_light(Al);
     const directionalLight = new DirectionalLight(new Color('#ffffff'));
     directionalLight.position.set(10, 10, 10);
-    directionalLight.intensity = 4.5
+    directionalLight.intensity = 3.5
     directionalLight.target = __node__; // Targeting __node__
     directionalLight.castShadow = true; // Enable casting shadows
     __engine__.add_light(directionalLight);

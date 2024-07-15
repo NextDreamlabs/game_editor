@@ -38,9 +38,9 @@ void main() {
   vec4 outlineColor = vec4(0.0, 0.0, 0.0, 1.0);
 
   vec2 displacement = vec2(
-    (hash(gl_FragCoord.xy) * sin(gl_FragCoord.y * 0.05)) ,
-    (hash(gl_FragCoord.xy) * cos(gl_FragCoord.x * 0.05))
-  ) * 2.0 /resolution.xy;
+    (hash(gl_FragCoord.xy) * sin(gl_FragCoord.y * 0.35)) ,
+    (hash(gl_FragCoord.xy) * cos(gl_FragCoord.x * 0.35))
+  ) * 2.8 /resolution.xy;
 
   float depth = readDepth(tDepth, vUv);
   vec4 normal = texture2D(tNormal, vUv);

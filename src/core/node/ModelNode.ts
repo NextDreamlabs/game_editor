@@ -74,6 +74,7 @@ export class ModelNode extends Node {
   async loadModel(url: string) {
     this.modelPath = url
     const extension = url.split('.').pop()?.toLowerCase();
+    this.modelType = extension
     let loader: GLTFLoader | OBJLoader;
 
     switch (extension) {
@@ -122,7 +123,8 @@ export class ModelNode extends Node {
 
   private copyObject3D(source: Object3D, target: Object3D) {
     console.log(source, 'source')
-    source.children.forEach(child => {
+    const _source = ['gltf', 'glb'].includes(this.modelType) ? source.scene : source
+    _source.children.forEach(child => {
       let newChild: Object3D;
       if (child instanceof Mesh) {
         newChild = new MeshNode(child.name, child.geometry, child.material, true);

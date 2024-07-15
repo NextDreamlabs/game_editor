@@ -46,7 +46,7 @@ export class Engine {
     this.renderer.toneMappingExposure = 1.75
     this.renderer.shadowMap.enabled = true
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
-    this.camera = new PerspectiveCamera(65, container.clientWidth / container.clientHeight, 0.01, 1000);
+    this.camera = new PerspectiveCamera(65, container.clientWidth / container.clientHeight, 0.1, 200);
     this.threeScene = new ThreeScene();
     container.appendChild(this.renderer.domElement);
     this.camera.position.z = 5;
@@ -104,7 +104,7 @@ export class Engine {
     )
 
     const normalRenderTarget = new THREE.WebGLRenderTarget()
-    this.pass = new EffectComposerWrapper(this.renderer, this.threeScene, this.camera, MoebiusPass, {
+    this.pass = new EffectComposerWrapper(this.renderer, this.threeScene, this.camera, PencilLinesPass, {
       depthRenderTarget,
       normalRenderTarget
     });
