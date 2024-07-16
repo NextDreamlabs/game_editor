@@ -131,7 +131,7 @@ export class Engine {
     this.threeScene.add(floor);
   }
   private onWindowResize(container: HTMLElement) {
-
+    //测试提交策略
     this.camera.aspect = container.clientWidth / container.clientHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(container.clientWidth, container.clientHeight);
