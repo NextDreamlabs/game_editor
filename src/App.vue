@@ -71,6 +71,13 @@ onMounted(async () => {
     model.add_child(new AnimationPlayer(model))
     console.log(model.AnimationPlay, 'AnimationPlay')
     model.AnimationPlay.play('run')
+    setTimeout(() => {
+      model.AnimationPlay.play('walk')
+
+      model.AnimationPlay?.addCallbackAtFrame('walk', 30, 60, () => {
+        console.log('callback')
+      })
+    }, 5000)
     __node__1.position.x = 3
     __node__1.position.y = 1
     __node__1.position.z = 1

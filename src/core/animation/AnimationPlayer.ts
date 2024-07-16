@@ -42,21 +42,19 @@ class AnimationPlayer extends Node {
     this.animations.set(name, clip);
   }
 
-  play(name: string = '', customBlend: number = 0.2, customSpeed: number = 1.0) {
+  play(name: string = '', customBlend: number = 2.2, customSpeed: number = 1.0) {
     if (name === '' && this.autoplay !== '') {
       name = this.autoplay;
     }
 
     const clip = this.animations.get(name);
     if (clip) {
-      console.log(clip, 'clipclip')
       const action = this.mixer.clipAction(clip);
-      console.log(action, 'actionactionaction')
 
       if (this.currentAction && this.currentAction !== action) {
         this.currentAction.crossFadeTo(action, customBlend);
       }
-      action.setEffectiveTimeScale(-1);
+      action.setEffectiveTimeScale(.5);
       action.setLoop(THREE.LoopRepeat); // 设置动画循环播放
       action.play();
       this.currentAction = action;
@@ -106,12 +104,12 @@ class AnimationPlayer extends Node {
         }
       });
     }
-    // if (this.currentAction && !this.currentAction.isRunning() && this.queuedActions.length > 0) {
-    //   const nextAnimation = this.queuedActions.shift();
-    //   if (nextAnimation) {
-    //     this.play(nextAnimation);
-    //   }
-    // }
+    if (this.currentAction && !this.currentAction.isRunning() && this.queuedActions.length > 0) {
+      const nextAnimation = this.queuedActions.shift();
+      if (nextAnimation) {
+        this.play(nextAnimation);
+      }
+    }
   }
 
   setAutoplay(name: string) {

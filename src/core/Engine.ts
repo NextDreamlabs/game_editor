@@ -257,18 +257,17 @@ export class Engine {
 
   private loop() {
     if (!this.running) return;
-
-    const delta = 16; // 假设每帧16ms
-    for (const scene of this.scenes) {
-      scene.update(delta, this.renderStatus === 'start');
-    }
     const mixerUpdateDelta = this.clock.getDelta();
+    for (const scene of this.scenes) {
+      scene.update(mixerUpdateDelta, this.renderStatus === 'start');
+    }
+
     AnimationPlayerManager.update(mixerUpdateDelta)
     this.customRenderer.render();
     // 使用 PostProcessingSetup 的 render 方法替代直接渲染
     this.pass.render();
     // this.renderer.render(this.threeScene, this.camera);
-    this.cameraControls.update(delta);
+    this.cameraControls.update(mixerUpdateDelta);
     requestAnimationFrame(() => this.loop());
   }
 

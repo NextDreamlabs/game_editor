@@ -30,7 +30,6 @@ export class SelectionSystem extends EventDispatcher {
     const rect = this.container.getBoundingClientRect();
     this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-    console.log(this.camera.position, 'this.camera')
 
     this.raycaster.setFromCamera(this.mouse, this.camera);
     const sceneNodes = this.scene.children.filter((item: any) => item instanceof Scene);
@@ -46,9 +45,7 @@ export class SelectionSystem extends EventDispatcher {
         return false;
       })
     );
-    console.log(sceneNodes, 'sceneNodes')
     const intersects = this.raycaster.intersectObjects(meshNodes, true);
-    console.log(intersects, 'intersects')
 
     if (intersects.length > 0) {
       // console.log(intersects)
