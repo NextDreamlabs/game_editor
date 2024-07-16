@@ -108,10 +108,11 @@ export class ModelNode extends Node {
       });
       this.animations = model.animations
       this.model = model.scene
-      this.clearObject3D(this)
+      this.add(model.scene);
+      // this.clearObject3D(this)
       // this.mesh = model as Mesh;
       // this.add(model);
-      this.copyToMeshNode(model)
+      // this.copyToMeshNode(model)
       console.log(model, 'modelmodel')
 
       console.log(this, 'thisthisthis')

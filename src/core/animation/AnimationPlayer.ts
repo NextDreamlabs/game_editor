@@ -56,7 +56,8 @@ class AnimationPlayer extends Node {
       if (this.currentAction && this.currentAction !== action) {
         this.currentAction.crossFadeTo(action, customBlend);
       }
-      action.setEffectiveTimeScale(customSpeed);
+      action.setEffectiveTimeScale(-1);
+      action.setLoop(THREE.LoopRepeat); // 设置动画循环播放
       action.play();
       this.currentAction = action;
     }
@@ -105,12 +106,12 @@ class AnimationPlayer extends Node {
         }
       });
     }
-    if (this.currentAction && !this.currentAction.isRunning() && this.queuedActions.length > 0) {
-      const nextAnimation = this.queuedActions.shift();
-      if (nextAnimation) {
-        this.play(nextAnimation);
-      }
-    }
+    // if (this.currentAction && !this.currentAction.isRunning() && this.queuedActions.length > 0) {
+    //   const nextAnimation = this.queuedActions.shift();
+    //   if (nextAnimation) {
+    //     this.play(nextAnimation);
+    //   }
+    // }
   }
 
   setAutoplay(name: string) {
