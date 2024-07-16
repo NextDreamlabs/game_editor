@@ -17,7 +17,7 @@ abstract class AbstractNode {
   protected signals: { [key: string]: Signal } = {};
 
   // 抽象方法：添加子节点
-  abstract add_child(child: Node): void;
+  // abstract add_child(child: Node): void;
   // 抽象方法：移除子节点
   abstract remove_child(child: Node): void;
   // 抽象方法：获取父节点
@@ -60,7 +60,7 @@ class Signal extends Object3D {
 
 export class Node extends Signal {
   public $type: string = 'Node'
-
+  public $parent: Node;
   // 脚本对象
   public script: any = null;
   // 节点名称
@@ -74,9 +74,10 @@ export class Node extends Signal {
   // 信号字典
   protected signals: { [key: string]: Signal } = {};
 
-  constructor(name: string) {
+  constructor(name: string, parent?: Node) {
     super();
     this.name = name;
+    this.$parent = parent;
     console.log(this, 'this')
     SelectionSystem.selectStore.set(this!.uuid, this)
   }
@@ -110,8 +111,11 @@ export class Node extends Signal {
    * @param child - 要添加的子节点
    */
   add_child(child: Node) {
+    child.$parent = this
     this.add(child);
     this.node_children.push(child);
+
+    console.log(child, 'childchildchildchild')
     globalStore.value.push(child)
     console.log(globalStore.value, 'globalStore.value')
     EditorInfo.value.isSave = true
@@ -132,7 +136,7 @@ export class Node extends Signal {
    * @returns 父节点或 null（如果没有父节点）
    */
   get_parent(): Node | null {
-    return this.parent;
+    return this.$parent;
   }
 
   /**

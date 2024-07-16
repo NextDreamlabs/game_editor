@@ -21,6 +21,8 @@ import { PixelatePass } from './pass/pixelPass/pixelMaterial'
 import { CustomRenderer } from './renderer/passRenderer'
 import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelatedPass.js';
 
+
+import AnimationPlayerManager from './manager/AnimationPlayerManager'
 export class Engine {
   private static instance: Engine;
   private scenes: Scene[] = [];
@@ -31,6 +33,7 @@ export class Engine {
   private threeScene: ThreeScene;
   private container: HTMLElement;
   private gridHelper: GridHelper;
+  private clock: THREE.Clock = new THREE.Clock();
   private tweakpaneManager: TweakpaneManager;
   public cameraControls: CameraControls;
   public customTransformControls: CustomTransformControls;
@@ -259,7 +262,8 @@ export class Engine {
     for (const scene of this.scenes) {
       scene.update(delta, this.renderStatus === 'start');
     }
-
+    const mixerUpdateDelta = this.clock.getDelta();
+    AnimationPlayerManager.update(mixerUpdateDelta)
     this.customRenderer.render();
     // 使用 PostProcessingSetup 的 render 方法替代直接渲染
     this.pass.render();

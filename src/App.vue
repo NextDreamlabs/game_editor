@@ -17,6 +17,7 @@ import secneJson from '../src/scene.json'
 import ScriptLoadPane from "../src/ui/Panel/ScriptLoadPane/index.vue"
 import sceneNodePane from "../src/ui/sceneNodePanel/index.vue"
 import SceneHeaderTab from './ui/Panel/SceneHeaderTab.vue'
+import AnimationPlayer from './core/animation/AnimationPlayer';
 let encoder = new TextEncoder();
 let data = encoder.encode("Hello World");
 
@@ -24,7 +25,7 @@ const testLoader = false
 const eventManager = ref(null) as Ref<EventManager | null>
 let __engine__ = null
 let __scene__ = null
-onMounted(() => {
+onMounted(async () => {
   const editorPanel = document.getElementById('Editor_Panel');
   console.log(editorPanel?.clientWidth, 'editorPanel')
   if (editorPanel) {
@@ -66,7 +67,10 @@ onMounted(() => {
     const __node__ = new MeshNode('mesh', tg)
     const __node__1 = new MeshNode('mesh1', sp)
     const model = new ModelNode('model')
-    model.loadModel("/src/assets/guaishou.glb")
+    await model.loadModel("/src/assets/Xbot.glb")
+    model.add_child(new AnimationPlayer(model))
+    console.log(model.AnimationPlay, 'AnimationPlay')
+    model.AnimationPlay.play('run')
     __node__1.position.x = 3
     __node__1.position.y = 1
     __node__1.position.z = 1

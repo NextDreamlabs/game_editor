@@ -6,11 +6,15 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 
 import { ObservableProperty, applyObservableProperties } from '../decorators/ObservableProperty';
+import AnimationPlayer from '../animation/AnimationPlayer';
 
 export class ModelNode extends Node {
   public material: Material;
   public geometry: BufferGeometry;
   public mesh: Mesh;
+  public animations: any;
+  public model: any;
+  public AnimationPlay: AnimationPlayer | null;
   public modelPath: string
   constructor(name: string, geometry?: BufferGeometry, material?: Material) {
     super(name, 0, 0); // 默认位置为 (0, 0)
@@ -20,7 +24,12 @@ export class ModelNode extends Node {
   updateUI(property: string, value: any) {
     console.log(`Property ${property} updated to`, value);
   }
-
+  add_child(child: Node): void {
+    super.add_child(child);
+    if (child instanceof AnimationPlayer) {
+      this.AnimationPlay = child
+    }
+  }
   setGeometry(type: 'box' | 'sphere' | 'custom', customGeometry?: BufferGeometry) {
     switch (type) {
       case 'box':
@@ -97,6 +106,8 @@ export class ModelNode extends Node {
       const model = await new Promise<Object3D>((resolve, reject) => {
         loader.load(url, resolve, undefined, reject);
       });
+      this.animations = model.animations
+      this.model = model.scene
       this.clearObject3D(this)
       // this.mesh = model as Mesh;
       // this.add(model);

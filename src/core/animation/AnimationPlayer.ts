@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import AnimationPlayerManager from '../manager/AnimationPlayerManager';
 import { Node } from '../Node';
+import { ModelNode } from '../node/ModelNode';
 
 class AnimationPlayer extends Node {
   private mixer: THREE.AnimationMixer;
@@ -9,13 +10,32 @@ class AnimationPlayer extends Node {
   private queuedActions: string[] = [];
   private autoplay: string = '';
   private callbacks: { [key: number]: () => void } = {};
+  public targetNode: ModelNode | null = null;
+  constructor(object?: THREE.Object3D) {
+    super('AnimationPlayer', object)
+    console.log(this.$parent
+      , 'this.get_parent()')
+    if (!object) {
+      this.mixer = new THREE.AnimationMixer(this.$parent.model);
+      this.animations = new Map();
+      AnimationPlayerManager.addPlayer(this);
+      //@ts-ignore
+      // this.addTarget(this.$parent)
 
-  constructor(object: THREE.Object3D) {
-    super('AnimationPlayer')
-    this.mixer = new THREE.AnimationMixer(object);
-    this.animations = new Map();
-    AnimationPlayerManager.addPlayer(this);
+      return
+    } else {
+      this.mixer = new THREE.AnimationMixer(object);
+      this.animations = new Map();
+      AnimationPlayerManager.addPlayer(this);
+      this.addTarget(object)
+    }
+  }
 
+  addTarget(Node: ModelNode) {
+    this.targetNode = Node
+    this.targetNode?.animations.forEach((item: THREE.AnimationClip) => {
+      this.animations.set(item.name, item)
+    })
   }
 
   addAnimation(name: string, clip: THREE.AnimationClip) {
@@ -29,7 +49,10 @@ class AnimationPlayer extends Node {
 
     const clip = this.animations.get(name);
     if (clip) {
+      console.log(clip, 'clipclip')
       const action = this.mixer.clipAction(clip);
+      console.log(action, 'actionactionaction')
+
       if (this.currentAction && this.currentAction !== action) {
         this.currentAction.crossFadeTo(action, customBlend);
       }
@@ -70,6 +93,8 @@ class AnimationPlayer extends Node {
 
   update(delta: number) {
     this.mixer.update(delta);
+    // console.log(this.mixer)
+
     if (this.currentAction) {
       const time = this.currentAction.time;
       // Check for callbacks at the current time and execute them
