@@ -4,6 +4,8 @@ import * as THREE from "three";
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { PencilLinesPass } from '../pass/PencilLinesPass';
+import { PixelatePass } from './pixelPass/pixelMaterial';
+import RenderPixelatedPass from './pixelPass/pixelMaterialRender';
 // import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
 // import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader';
 
@@ -80,21 +82,34 @@ export class EffectComposerWrapper {
     this.composer = new EffectComposer(renderer);
 
     const renderPass = new RenderPass(scene, camera);
-
     // const fxaaPass = new ShaderPass(FXAAShader);
+    if (args?.passType === 'pixelPass') {
 
-
+      const Pass = new _class({
+        resolution: new THREE.Vector2(window.innerWidth, window.innerHeight).clone().divideScalar(4)
+      });
+      const PassRender = new RenderPixelatedPass({
+        scene: scene,
+        camera: camera,
+        resolution: new THREE.Vector2(window.innerWidth, window.innerHeight).clone().divideScalar(4)
+      });
+      this.composer.addPass(renderPass);
+      this.composer.addPass(PassRender);
+      this.composer.addPass(Pass);
+    } else {
+      const pencilLinePass = new _class({
+        width: renderer.domElement.clientWidth,
+        height: renderer.domElement.clientHeight,
+        scene,
+        camera,
+        depthRenderTarget: args?.depthRenderTarget,
+        normalRenderTarget: args?.normalRenderTarget,
+      });
+      this.composer.addPass(renderPass);
+      this.composer.addPass(pencilLinePass);
+    }
     // this.composer.addPass(fxaaPass);
-    const pencilLinePass = new _class({
-      width: renderer.domElement.clientWidth,
-      height: renderer.domElement.clientHeight,
-      scene,
-      camera,
-      depthRenderTarget: args?.depthRenderTarget,
-      normalRenderTarget: args?.normalRenderTarget,
-    });
-    this.composer.addPass(renderPass);
-    this.composer.addPass(pencilLinePass);
+
 
 
   }

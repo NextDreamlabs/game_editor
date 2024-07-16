@@ -17,7 +17,10 @@ import { EffectComposerWrapper } from './pass/effectComposerWrapper';
 
 import { PencilLinesPass } from './pass/PencilLinesPass/index'
 import { MoebiusPass } from './pass/MoebiusPass/index'
+import { PixelatePass } from './pass/pixelPass/pixelMaterial'
 import { CustomRenderer } from './renderer/passRenderer'
+import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelatedPass.js';
+
 export class Engine {
   private static instance: Engine;
   private scenes: Scene[] = [];
@@ -104,9 +107,9 @@ export class Engine {
     )
 
     const normalRenderTarget = new THREE.WebGLRenderTarget()
-    this.pass = new EffectComposerWrapper(this.renderer, this.threeScene, this.camera, PencilLinesPass, {
+    this.pass = new EffectComposerWrapper(this.renderer, this.threeScene, this.camera, MoebiusPass, {
       depthRenderTarget,
-      normalRenderTarget
+      normalRenderTarget,
     });
     this.customRenderer = new CustomRenderer(this.renderer, this.threeScene, this.camera, container.clientWidth, container.clientHeight, {
       depthRenderTarget,

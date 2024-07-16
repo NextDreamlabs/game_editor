@@ -2,6 +2,7 @@ import { Raycaster, Vector2, Camera, Scene as ThreeScene, Object3D, EventDispatc
 import { Node } from '../Node'
 import { MeshNode } from '../node/MeshNode';
 import { Scene } from '../Scene';
+import { ModelNode } from '../node/ModelNode';
 export class SelectionSystem extends EventDispatcher {
   private raycaster: Raycaster;
   private mouse: Vector2;
@@ -51,12 +52,24 @@ export class SelectionSystem extends EventDispatcher {
 
     if (intersects.length > 0) {
       // console.log(intersects)
-      // console.log(SelectionSystem.selectStore)
       const selectedObject = intersects[0].object;
-      console.log(selectedObject, 'selectedObject')
-      if (selectedObject.parent instanceof MeshNode) {
-        this.dispatchEvent({ type: 'select', object: selectedObject })
+      // console.log(SelectionSystem.selectStore)
+      let parent = selectedObject.parent;
+      while (parent) {
+        if (parent instanceof MeshNode) {
+
+          this.dispatchEvent({ type: 'select', object: selectedObject });
+          break; // 如果找到，停止循环
+        }
+        if (parent instanceof ModelNode) {
+          this.dispatchEvent({ type: 'select', object: selectedObject });
+        }
+        parent = parent.parent; // 继续检查上一级父对象
       }
     }
+    // if (selectedObject.parent instanceof MeshNode || selectedObject?.parent instanceof ModelNode) {
+    //   this.dispatchEvent({ type: 'select', object: selectedObject })
+    // }
+    // }
   }
 }
