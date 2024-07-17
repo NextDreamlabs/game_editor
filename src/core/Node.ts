@@ -6,6 +6,10 @@ import { EditorInfo } from './store/sceneGraphMap'
 
 import { SelectionSystem } from './system/SelectionSystem'
 import { globalStore, testDemo } from './store/sceneGraphMap';
+
+import Ammo from 'ammo.js'
+import { RigidBody } from './physics/RigidBody';
+
 abstract class AbstractNode {
   // 子节点数组
   protected children: Node[] = [];
@@ -61,6 +65,9 @@ class Signal extends Object3D {
 export class Node extends Signal {
   public $type: string = 'Node'
   public $parent: Node;
+  //@ts-ignore
+  public $rigidBody: RigidBody;
+
   // 脚本对象
   public script: any = null;
   // 节点名称
@@ -74,12 +81,16 @@ export class Node extends Signal {
   // 信号字典
   protected signals: { [key: string]: Signal } = {};
 
+  public phybody: Ammo.btRigidBody; // 添加刚体属性
+  public transformAux = new Ammo.btTransform();
+
   constructor(name: string, parent?: Node) {
     super();
     this.name = name;
     this.$parent = parent;
     console.log(this, 'this')
     SelectionSystem.selectStore.set(this!.uuid, this)
+
   }
 
   /**

@@ -25,6 +25,7 @@ import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelated
 import AnimationPlayerManager from './manager/AnimationPlayerManager'
 // 导入Ammo.js库
 import Ammo from 'ammo.js';
+import physics from './physics';
 
 export class Engine {
   private static instance: Engine;
@@ -44,11 +45,13 @@ export class Engine {
   private renderStatus: 'start' | 'preview' = 'start';
   private postProcessing: PostProcessingSetup;
   // 添加用于物理世界的属性
-  private physicsWorld: Ammo.btDiscreteDynamicsWorld;
+  public Ammo: any
+  public physicsWorld: any;
+  public rigidBodies: any[] = []
+  public constructor(container: HTMLElement) {
 
-  constructor(container: HTMLElement) {
     // 初始化物理世界
-    this.initPhysicsWorld();
+    // this.initPhysicsWorld();
 
     this.renderer = new WebGLRenderer();
     this.renderer.setSize(container.clientWidth, container.clientHeight); // 设置渲染器大小
@@ -127,18 +130,23 @@ export class Engine {
     });
   }
 
-  private initPhysicsWorld() {
-    // 创建碰撞配置和调度程序
+  private async initPhysicsWorld() {
+    // this.Ammo = physics
     const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
+    //-- dispatcher为碰撞检测算法分配器引用
     const dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
 
-    // 创建广相和求解器
-    const overlappingPairCache = new Ammo.btDbvtBroadphase();
+    //-- 为碰撞粗测算法接口
+    const broadphase = new Ammo.btDbvtBroadphase();
+
+    //-- 配置约束解决器 - (序列脉冲约束解决器)
+    //-- 使物体正确地交互，考虑重力、力、碰撞等
     const solver = new Ammo.btSequentialImpulseConstraintSolver();
+    //-- 配置约束解决器 - (软体约束解决器)
+    // const softBodySolver = new Ammo.btDefaultSoftBodySolver();
 
-    // 创建物理世界
-    this.physicsWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
-
+    //-- 创建一个支持软体、刚体的物理世界
+    this.physicsWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
     // 设置重力
     this.physicsWorld.setGravity(new Ammo.btVector3(0, -9.8, 0));
   }
@@ -153,23 +161,37 @@ export class Engine {
   }
 
   // 在渲染循环中更新物理模拟
-  private updatePhysics() {
+  private updatePhysics(delta: number) {
     // 推进物理模拟
-    this.physicsWorld.stepSimulation(this.clock.getDelta());
+    this.physicsWorld.stepSimulation(delta, 10);
+    this.rigidBodies.forEach((body: any) => {
+      // 更新对象的变换
+      const ms = body?.phybody.getMotionState();
+
+      if (ms) {
+        //-- 获取物理世界中的运动姿态
+        ms.getWorldTransform(body.transformAux);
+        const p = body.transformAux.getOrigin();
+        const q = body.transformAux.getRotation();
+        body.position.set(p.x(), p.y(), p.z());
+        body.quaternion.set(q.x(), q.y(), q.z(), q.w());
+        // console.log(p.x(), p.y(), p.z(), 'body')
+      }
+    })
   }
 
   initMeshWithReflectiveFloor() {
-    const floorGeometry = new THREE.PlaneGeometry(10, 10);
-    const floorMaterial = new THREE.MeshPhongMaterial({
-      color: 0xFFFFFF, // White color
-      specular: 0x050505,
-      shininess: 100,
-      reflectivity: 0.5,
-    });
-    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    floor.rotation.x = -Math.PI / 2; // Rotate to lie flat
-    floor.receiveShadow = true; // Enable receiving shadows
-    this.threeScene.add(floor);
+    // const floorGeometry = new THREE.PlaneGeometry(10, 10);
+    // const floorMaterial = new THREE.MeshPhongMaterial({
+    //   color: 0xFFFFFF, // White color
+    //   specular: 0x050505,
+    //   shininess: 100,
+    //   reflectivity: 0.5,
+    // });
+    // const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    // floor.rotation.x = -Math.PI / 2; // Rotate to lie flat
+    // floor.receiveShadow = true; // Enable receiving shadows
+    // this.threeScene.add(floor);
   }
   private onWindowResize(container: HTMLElement) {
     //测试提交策略
@@ -300,15 +322,17 @@ export class Engine {
       scene.update(mixerUpdateDelta, this.renderStatus === 'start');
     }
 
+
     AnimationPlayerManager.update(mixerUpdateDelta)
     this.customRenderer.render();
     // 使用 PostProcessingSetup 的 render 方法替代直接渲染
     this.pass.render();
     // this.renderer.render(this.threeScene, this.camera);
     this.cameraControls.update(mixerUpdateDelta);
-    this.updatePhysics();
+    this.updatePhysics(mixerUpdateDelta);
     requestAnimationFrame(() => this.loop());
   }
+
 
   // Add this method to register an event for resizing
   registerResizeEvent(eventManager: EventManager) {
@@ -318,7 +342,8 @@ export class Engine {
   }
   public static getInstance(container?: HTMLElement): Engine {
     if (!Engine.instance) {
-      Engine.instance = new Engine(container as a);
+      Engine.instance = new Engine(container as any);
+      Engine.instance.initPhysicsWorld()
     }
     return Engine.instance;
   }

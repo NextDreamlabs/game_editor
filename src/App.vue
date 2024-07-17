@@ -9,7 +9,7 @@ import { ref } from 'vue';
 import { onMounted, Ref, watch, onBeforeUnmount } from 'vue';
 import { Engine, Node, Scene, MeshNode, ModelNode } from './core';
 import { EventManager } from './core/Event';
-import { AmbientLight, Color, DirectionalLight, SphereGeometry, PointLight, PointLightHelper, Object3D, TorusKnotGeometry } from 'three';
+import { AmbientLight, Color, DirectionalLight, Vector3, SphereGeometry, PlaneGeometry, PointLight, PointLightHelper, Object3D, TorusKnotGeometry } from 'three';
 import { DirectionalLightNode, PointLightNode, SpotLightNode } from './core/node/lights';
 import { writeFile, BaseDirectory } from '@tauri-apps/plugin-fs';
 import * as fs from "@tauri-apps/api/path";
@@ -18,18 +18,21 @@ import ScriptLoadPane from "../src/ui/Panel/ScriptLoadPane/index.vue"
 import sceneNodePane from "../src/ui/sceneNodePanel/index.vue"
 import SceneHeaderTab from './ui/Panel/SceneHeaderTab.vue'
 import AnimationPlayer from './core/animation/AnimationPlayer';
+import { InitPhysics } from './core/physics';
+import { RigidBody } from './core/physics/RigidBody';
 let encoder = new TextEncoder();
 let data = encoder.encode("Hello World");
 
 const testLoader = false
 const eventManager = ref(null) as Ref<EventManager | null>
-let __engine__ = null
-let __scene__ = null
+let __engine__: any = null
+let __scene__: any = null
 onMounted(async () => {
+  await InitPhysics()
   const editorPanel = document.getElementById('Editor_Panel');
   console.log(editorPanel?.clientWidth, 'editorPanel')
   if (editorPanel) {
-    __engine__ = Engine.getInstance(editorPanel);
+    __engine__ = await Engine.getInstance(editorPanel);
     eventManager.value = new EventManager();
     __engine__.registerResizeEvent(eventManager.value);
     // __engine__.loadScene(secneJson)
@@ -65,14 +68,52 @@ onMounted(async () => {
     const tg = new TorusKnotGeometry(1, 0.3, 200, 32)
     const sp = new SphereGeometry(1, 32, 32)
     const __node__ = new MeshNode('mesh', tg)
+    const rbBox = new RigidBody(__node__);
+    rbBox.createSphere(1, new Vector3(0, 10, 0), 1);
+    rbBox.setRestitution(0.5);
+    rbBox.setFriction(1);
+    rbBox.setRollingFriction(1);
+    rbBox.setBody()
+    __node__.add_child(rbBox)
+
+    //地板
+    const floorGeometry = new PlaneGeometry(10, 10);
+    const __node__2 = new MeshNode('mesh2', floorGeometry)
+    __node__2.mesh.rotation.x = -Math.PI / 2; // Rotate to lie flat
+    // __node__2.mesh.position.y = -10
+    __node__2.receiveShadow = true; // Enable receiving shadows
+
+    const nr = new RigidBody(__node__2, 'static')
+    nr.createBox(0, __node__2.position, __node__2.quaternion, new Vector3(100, 1, 100));
+    nr.setRestitution(0.99);
+    nr.setBody()
+    __node__2.add_child(nr)
+    __scene__.add_node(__node__2);
+
+
     const __node__1 = new MeshNode('mesh1', sp)
+    // __node__1.add_child(new RigidBody(__node__1, 'dynamic'))
     const model = new ModelNode('player')
     await model.loadModel("/src/assets/Xbot.glb")
     model.add_child(new AnimationPlayer(model))
     console.log(model.AnimationPlay, 'AnimationPlay')
+    const spawn_ = () => {
+      const n = new MeshNode(new Date().getTime(), null, null, false, {
+        x: Math.random() * 2 - 1, y: 200.0, z: Math.random() * 2 - 1
+      })
+      const rb = new RigidBody(n);
+      rb.createBox(1, new Vector3(Math.random() * 2 - 1, 50, Math.random() * 2 - 1), n.quaternion, new Vector3(1, 1, 1));
+      rb.setRestitution(0.125);
+      rb.setFriction(1);
+      rb.setRollingFriction(5);
+      rb.setBody()
+      n.add_child(rb)
+      __scene__.add_child(n)
+    }
     model.script = {
       update: (_this: any) => {
         console.log('update', __scene__.position)
+        // spawn_()
         // _this.position.x += 0.001
         // _this.position.x += 1
       },
@@ -89,6 +130,7 @@ onMounted(async () => {
     __node__1.position.y = 1
     __node__1.position.z = 1
     model.position.y = 1
+    model.position.z = -5
 
     __node__1.rotation.y = Math.PI / 4
     __node__.position.y = 3
