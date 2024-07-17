@@ -23,6 +23,9 @@ import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelated
 
 
 import AnimationPlayerManager from './manager/AnimationPlayerManager'
+// 导入Ammo.js库
+import Ammo from 'ammo.js';
+
 export class Engine {
   private static instance: Engine;
   private scenes: Scene[] = [];
@@ -40,8 +43,12 @@ export class Engine {
   private selectionSystem: SelectionSystem;
   private renderStatus: 'start' | 'preview' = 'start';
   private postProcessing: PostProcessingSetup;
+  // 添加用于物理世界的属性
+  private physicsWorld: Ammo.btDiscreteDynamicsWorld;
 
   constructor(container: HTMLElement) {
+    // 初始化物理世界
+    this.initPhysicsWorld();
 
     this.renderer = new WebGLRenderer();
     this.renderer.setSize(container.clientWidth, container.clientHeight); // 设置渲染器大小
@@ -118,6 +125,37 @@ export class Engine {
       depthRenderTarget,
       normalRenderTarget
     });
+  }
+
+  private initPhysicsWorld() {
+    // 创建碰撞配置和调度程序
+    const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
+    const dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
+
+    // 创建广相和求解器
+    const overlappingPairCache = new Ammo.btDbvtBroadphase();
+    const solver = new Ammo.btSequentialImpulseConstraintSolver();
+
+    // 创建物理世界
+    this.physicsWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+
+    // 设置重力
+    this.physicsWorld.setGravity(new Ammo.btVector3(0, -9.8, 0));
+  }
+
+  // 添加方法来处理物理交互
+  public applyForce(object: any, force: Ammo.btVector3) {
+    // 在物理世界中对对象施加力
+  }
+
+  public handleCollisions() {
+    // 处理物理世界中对象之间的碰撞
+  }
+
+  // 在渲染循环中更新物理模拟
+  private updatePhysics() {
+    // 推进物理模拟
+    this.physicsWorld.stepSimulation(this.clock.getDelta());
   }
 
   initMeshWithReflectiveFloor() {
@@ -268,6 +306,7 @@ export class Engine {
     this.pass.render();
     // this.renderer.render(this.threeScene, this.camera);
     this.cameraControls.update(mixerUpdateDelta);
+    this.updatePhysics();
     requestAnimationFrame(() => this.loop());
   }
 

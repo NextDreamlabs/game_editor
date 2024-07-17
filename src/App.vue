@@ -66,7 +66,7 @@ onMounted(async () => {
     const sp = new SphereGeometry(1, 32, 32)
     const __node__ = new MeshNode('mesh', tg)
     const __node__1 = new MeshNode('mesh1', sp)
-    const model = new ModelNode('model')
+    const model = new ModelNode('player')
     await model.loadModel("/src/assets/Xbot.glb")
     model.add_child(new AnimationPlayer(model))
     console.log(model.AnimationPlay, 'AnimationPlay')
