@@ -70,14 +70,21 @@ onMounted(async () => {
     await model.loadModel("/src/assets/Xbot.glb")
     model.add_child(new AnimationPlayer(model))
     console.log(model.AnimationPlay, 'AnimationPlay')
-    model.AnimationPlay.play('run')
-    setTimeout(() => {
-      model.AnimationPlay.play('walk')
+    model.script = {
+      update: (_this: any) => {
+        console.log('update', __scene__.position)
+        // _this.position.x += 0.001
+        // _this.position.x += 1
+      },
+      ready: (_this: any) => {
+        _this.AnimationPlay.play('walk')
+        _this.AnimationPlay?.addCallbackAtFrame('walk', 30, 60, () => {
+          _this.AnimationPlay.play('run')
+        })
+        // console.log(_this, 'this')
+      }
+    }
 
-      model.AnimationPlay?.addCallbackAtFrame('walk', 30, 60, () => {
-        console.log('callback')
-      })
-    }, 5000)
     __node__1.position.x = 3
     __node__1.position.y = 1
     __node__1.position.z = 1
@@ -139,8 +146,8 @@ onMounted(async () => {
 
       // });
     }, 3000)
-    __engine__.preview()
-    // __engine__.start()
+    // __engine__.preview()
+    __engine__.start()
   } else {
     console.error('Editor_Panel element not found');
   }
