@@ -13,7 +13,7 @@ export class MeshNode extends Node {
   public geometry: BufferGeometry;
   public mesh: Mesh;
 
-  constructor(name: string, geometry?: string, material?: Material, IsCopy: Boolean = false, position: any) {
+  constructor(name: string, geometry?: string, material?: Material, IsCopy?: Boolean, position?: any) {
     super(name, 0, 0); // 默认位置为 (0, 0)
     this.$type = 'MeshNode'
     if (!IsCopy) {

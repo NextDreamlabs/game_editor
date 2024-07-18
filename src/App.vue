@@ -11,7 +11,7 @@ import { Engine, Node, Scene, MeshNode, ModelNode } from './core';
 import { EventManager } from './core/Event';
 import { AmbientLight, Color, DirectionalLight, Vector3, SphereGeometry, PlaneGeometry, PointLight, PointLightHelper, Object3D, TorusKnotGeometry } from 'three';
 import { DirectionalLightNode, PointLightNode, SpotLightNode } from './core/node/lights';
-import { writeFile, BaseDirectory } from '@tauri-apps/plugin-fs';
+// import { writeFile, BaseDirectory } from '@tauri-apps/plugin-fs';
 import * as fs from "@tauri-apps/api/path";
 import secneJson from '../src/scene.json'
 import ScriptLoadPane from "../src/ui/Panel/ScriptLoadPane/index.vue"
@@ -81,7 +81,6 @@ onMounted(async () => {
     const __node__2 = new MeshNode('mesh2', floorGeometry)
     __node__2.mesh.rotation.x = -Math.PI / 2; // Rotate to lie flat
     // __node__2.mesh.position.y = -10
-    __node__2.receiveShadow = true; // Enable receiving shadows
 
     const nr = new RigidBody(__node__2, 'static')
     nr.createBox(0, __node__2.position, __node__2.quaternion, new Vector3(100, 1, 100));
@@ -96,9 +95,8 @@ onMounted(async () => {
     const model = new ModelNode('player')
     await model.loadModel("/src/assets/Xbot.glb")
     model.add_child(new AnimationPlayer(model))
-    console.log(model.AnimationPlay, 'AnimationPlay')
     const spawn_ = () => {
-      const n = new MeshNode(new Date().getTime(), null, null, false, {
+      const n = new MeshNode(new Date().getTime().toString(), undefined, null, false, {
         x: Math.random() * 2 - 1, y: 200.0, z: Math.random() * 2 - 1
       })
       const rb = new RigidBody(n);
@@ -113,7 +111,7 @@ onMounted(async () => {
     model.script = {
       update: (_this: any) => {
         console.log('update', __scene__.position)
-        // spawn_()
+        spawn_()
         // _this.position.x += 0.001
         // _this.position.x += 1
       },
@@ -200,7 +198,6 @@ onBeforeUnmount(() => {
 })
 
 const saveScene = async () => {
-
   console.log(JSON.stringify(__engine__.saveScene()), 'json')
   // EditorInfo.value.isSave = false
   // console.log(await fs.appDataDir())
@@ -226,17 +223,15 @@ console.log(globalStore.value, 'globalStore')
   <ResizablePanelGroup id="handle-demo-group-1" direction="horizontal"
     class="min-h-screen min-w-screen rounded-lg border">
     <ResizablePanel id="handle-demo-panel-1" :default-size="10">
+      <!-- 左侧菜单 -->
       <sceneNodePane></sceneNodePane>
-      <!-- <div v-for="i in globalStore" :key="i">
-        {{ i.name }}
-      </div> -->
     </ResizablePanel>
     <ResizableHandle id="handle-demo-handle-1" with-handle />
     <ResizablePanel :onResize="onResize" id="handle-demo-panel-2" :default-size="75">
       <!-- <div class="flex" @click="saveScene" v-if="EditorInfo.isSave">
         保存
       </div> -->
-
+      <!-- 中间场景区域 -->
       <SceneHeaderTab></SceneHeaderTab>
       <div id="Editor_Panel" class="h-full ">
       </div>
@@ -244,6 +239,7 @@ console.log(globalStore.value, 'globalStore')
     </ResizablePanel>
     <ResizableHandle id="handle-demo-handle-3" with-handle />
     <ResizablePanel id="handle-demo-panel-3" class="bg-[#121416]" :default-size="15">
+      <!-- 右侧信息面板 -->
       <ScriptLoadPane></ScriptLoadPane>
       <div id="rightCurrentPane" style="height: 100vh;" class="h-100vh p-4  overflow-scroll bg-[#29292e]"></div>
     </ResizablePanel>
