@@ -1,11 +1,11 @@
 import { Object3D, Mesh, BufferGeometry, Material, Vector3, Euler } from 'three';
-import { ObservableProperty, applyObservableProperties } from './decorators/ObservableProperty';
-import { CustomTransformControlsSingleton } from './helper/CustomTransformControlsSingleton';
-import { Engine } from './Engine';
-import { EditorInfo } from './store/sceneGraphMap'
+// import { ObservableProperty, applyObservableProperties } from './decorators/ObservableProperty';
+// import { CustomTransformControlsSingleton } from './helper/CustomTransformControlsSingleton';
+// import { Engine } from './Engine';
+// import { EditorInfo } from './store/sceneGraphMap'
 
-import { SelectionSystem } from './system/SelectionSystem'
-import { globalStore, testDemo } from './store/sceneGraphMap';
+// import { SelectionSystem } from './system/SelectionSystem'
+// import { globalStore, testDemo } from './store/sceneGraphMap';
 
 import Ammo from 'ammo.js'
 import { RigidBody } from './physics/RigidBody';
@@ -89,7 +89,7 @@ export class Node extends Signal {
     this.name = name;
     this.$parent = parent;
     console.log(this, 'this')
-    SelectionSystem.selectStore.set(this!.uuid, this)
+    // SelectionSystem.selectStore.set(this!.uuid, this)
 
   }
 
@@ -127,9 +127,9 @@ export class Node extends Signal {
     this.node_children.push(child);
 
     console.log(child, 'childchildchildchild')
-    globalStore.value.push(child)
-    console.log(globalStore.value, 'globalStore.value')
-    EditorInfo.value.isSave = true
+    // globalStore.value.push(child)
+    // console.log(globalStore.value, 'globalStore.value')
+    // EditorInfo.value.isSave = true
     console.log(this, 'this');
   }
 
@@ -216,15 +216,15 @@ export class Node extends Signal {
     // 在这里添加更新 UI 的逻辑
   }
 
-  /**
-   * 将此节点或指定节点附加到变换控件
-   * @param node - 要附加的节点
-   */
-  attachToTransformControls(node?: Node) {
-    const { camera, renderer, cameraControls } = Engine.getInstance();
-    const customTransformControls = CustomTransformControlsSingleton.getInstance(camera, renderer, cameraControls);
-    customTransformControls.attach(node ?? this);
-  }
+  // /**
+  //  * 将此节点或指定节点附加到变换控件
+  //  * @param node - 要附加的节点
+  //  */
+  // attachToTransformControls(node?: Node) {
+  //   const { camera, renderer, cameraControls } = Engine.getInstance();
+  //   const customTransformControls = CustomTransformControlsSingleton.getInstance(camera, renderer, cameraControls);
+  //   customTransformControls.attach(node ?? this);
+  // }
 
   /**
    * 卸载此节点及其资源

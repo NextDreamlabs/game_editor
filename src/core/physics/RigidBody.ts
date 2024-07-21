@@ -1,7 +1,7 @@
 import Ammo from 'ammo.js'
 import { Node } from '../Node';
 import { Engine } from '../Engine';
-
+import * as THREE from 'three'
 export class RigidBody extends Node {
   private position: { x: number, y: number, z: number };
   private rotation: { x: number, y: number, z: number };
@@ -31,7 +31,9 @@ export class RigidBody extends Node {
   setRestitution(val) {
     this.body_.setRestitution(val);
   }
-
+  setAngularFactor(val) {
+    this.body_.setAngularFactor(val);
+  }
   setFriction(val) {
     this.body_.setFriction(val);
   }
@@ -61,6 +63,23 @@ export class RigidBody extends Node {
     this.body_ = new Ammo.btRigidBody(this.info_);
 
     Ammo.destroy(btSize);
+  }
+
+  setVelocity(velocity: THREE.Vector3) {
+    const btVelocity = new Ammo.btVector3(velocity.x, velocity.y, velocity.z);
+    if (this.$parent.phybody) {
+      this.$parent.phybody.setLinearVelocity(btVelocity);
+    }
+    // this.body.setLinearVelocity(btVelocity);
+    Ammo.destroy(btVelocity);
+  }
+  addForce(velocity: THREE.Vector3) {
+    const btVelocity = new Ammo.btVector3(velocity.x, velocity.y, velocity.z);
+    if (this.$parent.phybody) {
+      this.$parent.phybody.applyCentralImpulse(btVelocity);
+    }
+    // this.body.setLinearVelocity(btVelocity);
+    Ammo.destroy(btVelocity);
   }
 
   createSphere(mass: any, pos: any, size: any) {

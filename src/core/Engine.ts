@@ -2,16 +2,10 @@
 import { Scene as ThreeScene, PerspectiveCamera, WebGLRenderer, GridHelper } from 'three';
 import { EventManager } from './Event';
 import { Scene, Scene as _Scene } from './Scene';
-import { MeshNode, ModelNode, Node } from './index';
+import { MeshNode, ModelNode } from './index';
 // import { Node } from './Node';
-import CameraControls from 'ly-camera-controls';
 import * as THREE from 'three';
-import TweakpaneManager from './manager/TweakpaneManager';
-import { CustomTransformControls } from './helper/TransformControls';
-import { SelectionSystem } from './system/SelectionSystem';
-import { CustomTransformControlsSingleton } from './helper/CustomTransformControlsSingleton';
-import { EngineInfo } from '../core/store/sceneGraphMap'
-import { watch } from 'vue';
+
 import { PostProcessingSetup } from './pass/MoebiusPass';
 import { EffectComposerWrapper } from './pass/effectComposerWrapper';
 
@@ -38,10 +32,7 @@ export class Engine {
   private container: HTMLElement;
   private gridHelper: GridHelper;
   private clock: THREE.Clock = new THREE.Clock();
-  private tweakpaneManager: TweakpaneManager;
-  public cameraControls: CameraControls;
-  public customTransformControls: CustomTransformControls;
-  private selectionSystem: SelectionSystem;
+
   private renderStatus: 'start' | 'preview' = 'start';
   private postProcessing: PostProcessingSetup;
   // 添加用于物理世界的属性
@@ -71,35 +62,6 @@ export class Engine {
     window.addEventListener('resize', () => this.onWindowResize(container)); // 监听窗口大小变化
     this.container = container;
 
-    // Add grid helper
-    this.gridHelper = new GridHelper(1000, 1000);
-    // this.threeScene.add(this.gridHelper);
-
-    CameraControls.install({ THREE: THREE });
-    this.cameraControls = new CameraControls(this.camera, this.renderer.domElement);
-    // this.cameraControls.mouseButtons.left = CameraControls.ACTION.OFFSET;
-    // this.cameraControls.mouseButtons.right = CameraControls.ACTION.ROTATE;
-    this.camera.position.set(0, 10, 10);
-    this.tweakpaneManager = new TweakpaneManager();
-
-    this.customTransformControls = CustomTransformControlsSingleton.getInstance(this.camera, this.renderer, this.cameraControls);
-    this.threeScene.add(this.customTransformControls.getControls());
-    // Initialize SelectionSystem
-    this.selectionSystem = new SelectionSystem(this.camera, this.threeScene);
-    this.selectionSystem.addEventListener('select', (event) => {
-      this.customTransformControls.attach(event.object.parent);
-
-      // this.cameraControls.setOrbitPoint(event.object.parent.position.x, event.object.parent.position.y, event.object.parent.position.z)
-      this.tweakpaneManager.addInput(event.object.parent); // Add this line
-    });
-    this.cameraControls.addEventListener('update', () => {
-      this.selectionSystem.updateCamera(this.camera)
-    })
-    this.selectionSystem.container = this.container
-
-    watch(EngineInfo.value, () => {
-      this.customTransformControls.setMode(EngineInfo.value.tranformMode)
-    })
     this.initMeshWithReflectiveFloor()
     // Initialize PostProcessingSetup
 
@@ -200,7 +162,7 @@ export class Engine {
     this.renderer.setSize(container.clientWidth, container.clientHeight);
 
     this.container = container
-    this.selectionSystem.container = this.container
+    // this.selectionSystem.container = this.container
   }
   public loadScene(scene: any) {
     // for (const [key, value] of scene.children) {
@@ -248,7 +210,7 @@ export class Engine {
     this.scenes.push(scene);
     this.threeScene.add(scene); // Add the root node's Object3D to the three.js scene
     // this.customTransformControls.attach(scene); // Attach custom transform controls to the root node
-    EngineInfo.value.Scenes.push(scene)
+    // EngineInfo.value.Scenes.push(scene)
 
     // EngineInfo.value.Scenes = this.threeScene
   }
@@ -302,7 +264,7 @@ export class Engine {
     this.renderStatus = type
   }
   private loadSceneScripts(scene: Scene) {
-    const loadNodeScripts = (node: Node) => {
+    const loadNodeScripts = (node: any) => {
       console.log(node, 'node');
       node.load_script(node.script);
       for (const child of node.node_children) {
@@ -328,7 +290,7 @@ export class Engine {
     // 使用 PostProcessingSetup 的 render 方法替代直接渲染
     this.pass.render();
     // this.renderer.render(this.threeScene, this.camera);
-    this.cameraControls.update(mixerUpdateDelta);
+    // this.cameraControls.update(mixerUpdateDelta);
     this.updatePhysics(mixerUpdateDelta);
     requestAnimationFrame(() => this.loop());
   }
@@ -338,11 +300,16 @@ export class Engine {
   registerResizeEvent(eventManager: EventManager) {
     eventManager.on('resize', () => {
       this.onWindowResize(this.container);
+
     });
   }
   public static getInstance(container?: HTMLElement): Engine {
     if (!Engine.instance) {
-      Engine.instance = new Engine(container as any);
+      const ele = document.createElement('div')
+      ele.style.width = '100vw'
+      ele.style.height = '100vh'
+      document.body.appendChild(ele)
+      Engine.instance = new Engine(ele) as any;
       Engine.instance.initPhysicsWorld()
     }
     return Engine.instance;
@@ -350,7 +317,7 @@ export class Engine {
 
   // Add this method to get customTransformControls
   getCustomTransformControls(): CustomTransformControls {
-    return this.customTransformControls;
+    // return this.customTransformControls;
   }
 
   async init(scene: Scene, jsonFilePath: string) {
@@ -359,7 +326,7 @@ export class Engine {
       const data = await response.json();
 
       data.objects.forEach((obj: any) => {
-        let node: Node;
+        let node: any;
         if (obj.type === 'MeshNode') {
           node = new MeshNode(obj.name);
         } else if (obj.type === 'ModelNode') {
@@ -375,7 +342,6 @@ export class Engine {
 
       this.add_scene(scene);
     } catch (error) {
-      console.error('Error loading JSON file:', error);
     }
   }
 }

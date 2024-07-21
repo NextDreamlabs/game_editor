@@ -1,4 +1,4 @@
-import { Node } from '../Node';
+import { Node as _gameObject } from '../Node';
 import { Mesh, BufferGeometry, TorusKnotGeometry, MeshStandardMaterial, MeshBasicMaterial, SphereGeometry, BoxGeometry, Material, Object3D, Color } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
@@ -8,7 +8,8 @@ import { ObservableProperty, applyObservableProperties } from '../decorators/Obs
 // import { AmmoPhysics } from 'three-stdlib';
 import physics from '../physics';
 import Ammo from 'ammo.js'
-export class MeshNode extends Node {
+
+export class MeshNode extends _gameObject {
   public material: Material;
   public geometry: BufferGeometry;
   public mesh: Mesh;

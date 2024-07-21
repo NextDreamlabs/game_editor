@@ -8,7 +8,7 @@ class AnimationPlayer extends Node {
   private animations: Map<string, THREE.AnimationClip>;
   private currentAction: THREE.AnimationAction | null = null;
   private queuedActions: string[] = [];
-  private autoplay: string = '';
+  private autoplay: string = 'idle';
   private callbacks: { [key: number]: () => void } = {};
   public targetNode: ModelNode | null = null;
   constructor(object?: THREE.Object3D) {
@@ -52,10 +52,12 @@ class AnimationPlayer extends Node {
       const action = this.mixer.clipAction(clip);
 
       if (this.currentAction && this.currentAction !== action) {
+        action.reset()
         this.currentAction.crossFadeTo(action, customBlend);
       }
       action.setEffectiveTimeScale(.5);
       action.setLoop(THREE.LoopRepeat); // 设置动画循环播放
+
       action.play();
       this.currentAction = action;
     }
@@ -104,12 +106,12 @@ class AnimationPlayer extends Node {
         }
       });
     }
-    if (this.currentAction && !this.currentAction.isRunning() && this.queuedActions.length > 0) {
-      const nextAnimation = this.queuedActions.shift();
-      if (nextAnimation) {
-        this.play(nextAnimation);
-      }
-    }
+    // if (this.currentAction && !this.currentAction.isRunning() && this.queuedActions.length > 0) {
+    //   const nextAnimation = this.queuedActions.shift();
+    //   if (nextAnimation) {
+    //     this.play(nextAnimati  on);
+    //   }
+    // }
   }
 
   setAutoplay(name: string) {
