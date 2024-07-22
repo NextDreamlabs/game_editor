@@ -11,18 +11,18 @@ import { DirectionalLightNode, PointLightNode, SpotLightNode } from './core/node
 import { RigidBody } from './core/physics/RigidBody';
 import { Input } from './core/input';
 import AnimationPlayer from './core/animation/AnimationPlayer';
+import { ThirdCamera } from './core/camera/ThirdCamera';
+import { InitPhysics, physics } from './core/physics';
 
 class setup {
   async init() {
+    await InitPhysics()
+    console.log(physics, 'physics=>>>')
     let __engine__: any = null
     let __scene__: any = null
-    // const editorPanel = document.getElementById('Editor_Panel');
-    // console.log(editorPanel?.clientWidth, 'editorPanel')
-    __engine__ = Engine.getInstance();
-    // __engine__.loadScene(secneJson)
-    // const _scene = new Scene('root2')
 
-    // console.log(secneJson, 'secneJson')
+    __engine__ = await Engine.getInstance();
+
     __scene__ = new Scene('root')
     const tg = new TorusKnotGeometry(1, 0.3, 200, 32)
     const sp = new SphereGeometry(1, 32, 32)
@@ -36,13 +36,13 @@ class setup {
     __node__.add_child(rbBox)
 
     //地板
-    const floorGeometry = new PlaneGeometry(10, 10);
+    const floorGeometry = new PlaneGeometry(10000, 10000);
     const __node__2 = new MeshNode('mesh2', floorGeometry)
     __node__2.mesh.rotation.x = -Math.PI / 2; // Rotate to lie flat
     // __node__2.mesh.position.y = -10
 
     const nr = new RigidBody(__node__2, 'static')
-    nr.createBox(0, __node__2.position, __node__2.quaternion, new Vector3(100, 0, 100));
+    nr.createBox(0, __node__2.position, __node__2.quaternion, new Vector3(10000, 0, 10000));
     nr.setRestitution(0.99);
     nr.setBody()
     __node__2.add_child(nr)
@@ -68,66 +68,67 @@ class setup {
     await model.loadModel("/src/assets/Xbot.glb")
     model.add_child(new AnimationPlayer(model))
     const rb = new RigidBody(model);
-    rb.createBox(10, new Vector3(Math.random() * 2 - 1, 3, Math.random() * 2 - 1), model.quaternion, new Vector3(0.5, 0.5, 0.5));
+    rb.createBox(30, new Vector3(Math.random() * 2 - 1, 3, Math.random() * 2 - 1), model.quaternion, new Vector3(0.5, 0.5, 0.5));
     rb.setRestitution(0.125);
     rb.setFriction(1);
-    rb.setRollingFriction(5);
+    rb.setRollingFriction(10);
     rb.setBody()
     model.add_child(rb)
+    new ThirdCamera(model)
     let index = 0
-    // model.script = {
+    model.script = {
 
-    //   update: (_this: any) => {
-    //     index++
-    //     if (index < 10) {
-    //       // spawn_()
-    //     }
-    //     // console.log('update', Input.isKeyDown('w'))
-    //     if (Input.isKeyDown('w')) {
-    //       _this.$rigidBody.setVelocity(new Vector3(0, 0, 1))
-    //       _this.AnimationPlay.play('run')
-    //     } else if (Input.isKeyDown('s')) {
-    //       _this.$rigidBody.setVelocity(new Vector3(0, 0, -1))
-    //       _this.AnimationPlay.play('run')
-    //     } else if (Input.isKeyDown('a')) {
-    //       _this.$rigidBody.setVelocity(new Vector3(1, 0, 0))
-    //       _this.AnimationPlay.play('run')
-    //     } else if (Input.isKeyDown('d')) {
-    //       _this.$rigidBody.setVelocity(new Vector3(-1, 0, 0))
-    //       _this.AnimationPlay.play('run')
-    //     } else if (Input.isKeyDown('c')) {
-    //       _this.$rigidBody.addForce(new Vector3(0, 10, 0))
-    //       _this.AnimationPlay.play('run')
-    //     } else {
-    //       _this.AnimationPlay.play('idle')
-    //     }
+      update: (_this: any) => {
+        index++
+        if (index < 10) {
+          // spawn_()
+        }
+        // console.log('update', Input.isKeyDown('w'))
+        if (Input.isKeyDown('w')) {
+          _this.$rigidBody.setVelocity(new Vector3(0, 0, 1))
+          _this.AnimationPlay.play('run')
+        } else if (Input.isKeyDown('s')) {
+          _this.$rigidBody.setVelocity(new Vector3(0, 0, -1))
+          _this.AnimationPlay.play('run')
+        } else if (Input.isKeyDown('a')) {
+          _this.$rigidBody.setVelocity(new Vector3(1, 0, 0))
+          _this.AnimationPlay.play('run')
+        } else if (Input.isKeyDown('d')) {
+          _this.$rigidBody.setVelocity(new Vector3(-1, 0, 0))
+          _this.AnimationPlay.play('run')
+        } else if (Input.isKeyDown('c')) {
+          _this.$rigidBody.addForce(new Vector3(0, 10, 0))
+          _this.AnimationPlay.play('run')
+        } else {
+          _this.AnimationPlay.play('idle')
+        }
 
-    //     // rb.setAngularFactor(new Vector3(0, 0, 0));
-    //     // _this.$rigidBody.setVelocity(
-    //     //   new Vector3(
-    //     //     0,
-    //     //     0,
-    //     const radius = 1;
-    //     const speed = 0.01;
-    //     // rb.setAngularFactor(new Vector3(0, 0, 0));
-    //     // _this.$rigidBody.setVelocity(
-    //     //   new Vector3(
-    //     //     0,
-    //     //     0,
-    //     //     1));// Set velocity to zero
-    //   },
-    //   ready: (_this: any) => {
-    //     Input.listenForKeys()
-    //     // _this.AnimationPlay.play('idle')
+        // rb.setAngularFactor(new Vector3(0, 0, 0));
+        // _this.$rigidBody.setVelocity(
+        //   new Vector3(
+        //     0,
+        //     0,
+        const radius = 1;
+        const speed = 0.01;
+        // rb.setAngularFactor(new Vector3(0, 0, 0));
+        // _this.$rigidBody.setVelocity(
+        //   new Vector3(
+        //     0,
+        //     0,
+        //     1));// Set velocity to zero
+      },
+      ready: (_this: any) => {
+        Input.listenForKeys()
+        // _this.AnimationPlay.play('idle')
 
-    //     _this.AnimationPlay?.addCallbackAtFrame('walk', 30, 60, () => {
+        _this.AnimationPlay?.addCallbackAtFrame('walk', 30, 60, () => {
 
-    //       // _this.$rigidBody.applyCentralImpulse(new Vector3(0, 10, 0))
+          // _this.$rigidBody.applyCentralImpulse(new Vector3(0, 10, 0))
 
-    //     })
-    //     // console.log(_this, 'this')
-    //   }
-    // }
+        })
+        // console.log(_this, 'this')
+      }
+    }
 
     __node__1.position.x = 3
     __node__1.position.y = 1
@@ -161,3 +162,10 @@ class setup {
 }
 
 new setup().init()
+if (import.meta.hot) {
+  // 在热更新时销毁类实例
+  import.meta.hot.accept();
+  import.meta.hot.dispose(() => {
+    // alert(1)
+  });
+}

@@ -25,7 +25,7 @@ dependencies:
     version: 0.12.0
   ammo.js:
     specifier: github:kripken/ammo.js
-    version: 0.0.10
+    version: github.com/kripken/ammo.js/1ed8b58c7058a5f697f2642ceef8ee20fdd55e10
   class-variance-authority:
     specifier: ^0.7.0
     version: 0.7.0
@@ -1404,10 +1404,6 @@ packages:
       debug: 4.3.5
     transitivePeerDependencies:
       - supports-color
-    dev: false
-
-  /ammo.js@0.0.10:
-    resolution: {integrity: sha512-jOv977u71jrDUzHfmQ99YaW90/y8YLn/3HFTmtLLzf5wJynAfG+/a1Ie5gbn0fE0uSAHxXVsFk4Bzq8qRPWqAA==}
     dev: false
 
   /ansi-regex@5.0.1:
@@ -3850,4 +3846,10 @@ packages:
 
   /zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
+    dev: false
+
+  github.com/kripken/ammo.js/1ed8b58c7058a5f697f2642ceef8ee20fdd55e10:
+    resolution: {tarball: https://codeload.github.com/kripken/ammo.js/tar.gz/1ed8b58c7058a5f697f2642ceef8ee20fdd55e10}
+    name: ammo.js
+    version: 0.0.2
     dev: false

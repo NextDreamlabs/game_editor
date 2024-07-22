@@ -9,6 +9,7 @@ import { Object3D, Mesh, BufferGeometry, Material, Vector3, Euler } from 'three'
 
 import Ammo from 'ammo.js'
 import { RigidBody } from './physics/RigidBody';
+import { physics } from './physics/index';
 
 abstract class AbstractNode {
   // 子节点数组
@@ -82,7 +83,7 @@ export class Node extends Signal {
   protected signals: { [key: string]: Signal } = {};
 
   public phybody: Ammo.btRigidBody; // 添加刚体属性
-  public transformAux = new Ammo.btTransform();
+  public transformAux = physics.btTransform();
 
   constructor(name: string, parent?: Node) {
     super();
@@ -125,11 +126,6 @@ export class Node extends Signal {
     child.$parent = this
     this.add(child);
     this.node_children.push(child);
-
-    console.log(child, 'childchildchildchild')
-    // globalStore.value.push(child)
-    // console.log(globalStore.value, 'globalStore.value')
-    // EditorInfo.value.isSave = true
     console.log(this, 'this');
   }
 

@@ -18,8 +18,8 @@ import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelated
 
 import AnimationPlayerManager from './manager/AnimationPlayerManager'
 // 导入Ammo.js库
-import Ammo from 'ammo.js';
-import physics from './physics';
+// import Ammo from 'ammo.js';
+import { physics } from './physics';
 
 export class Engine {
   private static instance: Engine;
@@ -31,6 +31,7 @@ export class Engine {
   private threeScene: ThreeScene;
   private container: HTMLElement;
   private gridHelper: GridHelper;
+  private queUpdate: any = []
   private clock: THREE.Clock = new THREE.Clock();
 
   private renderStatus: 'start' | 'preview' = 'start';
@@ -93,28 +94,26 @@ export class Engine {
   }
 
   private async initPhysicsWorld() {
-    // this.Ammo = physics
-    const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
+    this.Ammo = physics
+    console.log(physics, 'physics')
+    const collisionConfiguration = physics.btDefaultCollisionConfiguration();
     //-- dispatcher为碰撞检测算法分配器引用
-    const dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
+    const dispatcher = physics.btCollisionDispatcher(collisionConfiguration);
 
-    //-- 为碰撞粗测算法接口
-    const broadphase = new Ammo.btDbvtBroadphase();
+    const broadphase = physics.btDbvtBroadphase();
 
-    //-- 配置约束解决器 - (序列脉冲约束解决器)
-    //-- 使物体正确地交互，考虑重力、力、碰撞等
-    const solver = new Ammo.btSequentialImpulseConstraintSolver();
+    const solver = physics.btSequentialImpulseConstraintSolver();
     //-- 配置约束解决器 - (软体约束解决器)
     // const softBodySolver = new Ammo.btDefaultSoftBodySolver();
 
     //-- 创建一个支持软体、刚体的物理世界
-    this.physicsWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+    this.physicsWorld = physics.btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
     // 设置重力
-    this.physicsWorld.setGravity(new Ammo.btVector3(0, -9.8, 0));
+    this.physicsWorld.setGravity(physics.btVector3(0, -9.8, 0));
   }
 
   // 添加方法来处理物理交互
-  public applyForce(object: any, force: Ammo.btVector3) {
+  public applyForce(object: any, force: any) {
     // 在物理世界中对对象施加力
   }
 
@@ -276,7 +275,9 @@ export class Engine {
       loadNodeScripts(node);
     }
   }
-
+  public setQue(que: any) {
+    this.queUpdate.push(que)
+  }
   private loop() {
     if (!this.running) return;
     const mixerUpdateDelta = this.clock.getDelta();
@@ -286,6 +287,9 @@ export class Engine {
 
 
     AnimationPlayerManager.update(mixerUpdateDelta)
+    this.queUpdate.forEach((que: any) => {
+      que?.update(mixerUpdateDelta)
+    });
     this.customRenderer.render();
     // 使用 PostProcessingSetup 的 render 方法替代直接渲染
     this.pass.render();
